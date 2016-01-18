@@ -1,0 +1,31 @@
+{
+  "name": "clogc",
+  "version": "0.0.0",
+  "description": "A cli connection logger and visualizer.",
+  "main": "clogc.js",
+  "bin": "./clogc.js",
+  "files": [
+    "clogc.js"
+  ],
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "cli",
+    "network",
+    "connection",
+    "log",
+    "visualizer"
+  ],
+  "author": "Sayantan Chaudhuri",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/5310/clogc"
+  },
+  "dependencies": {
+    "cli-color": "^1.1.0",
+    "docopt": "^0.6.2",
+    "rx-lite": "^4.0.7"
+  }
+}
