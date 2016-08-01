@@ -74,16 +74,16 @@ const clogc = (opts) => {
     .map((ping) => { // Latency normalization.
       switch (ping.value) {
         case -3:
-          ping.value = legend.authFail
+          ping.viz = legend.authFail
           break
         case -2:
-          ping.value = legend.connFail
+          ping.viz = legend.connFail
           break
         case -1:
-          ping.value = legend.connFail
+          ping.viz = legend.connFail
           break
         default:
-          ping.value = legend.latency.find((bracket) => ping.value < bracket.step).symbol
+          ping.viz = legend.latency.find((bracket) => ping.value < bracket.step).symbol
       }
       return ping
     })
@@ -107,7 +107,7 @@ const clogc = (opts) => {
               prefix.push('\n' + time(bp[1].time) + '  ' + '\n')
             }
           }
-          return most.from(prefix.concat(bp[1].value))
+          return most.from(prefix.concat(bp[1].viz))
         })
     })
 }
