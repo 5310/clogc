@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 'use strict'
 
-const most = require('most')
-const spawn = require('child_process').spawn
-// const color = require('cli-color')
 const docopt = require('docopt').docopt
+const spawn = require('child_process').spawn
+const most = require('most')
+const color = require('cli-color')
 
 const time = (date) => {
   const pad = (n, width) => `${n}`.length >= width ? `${n}` : new Array(width - `${n}`.length + 1).join('0') + `${n}`
@@ -52,7 +52,7 @@ const ping = (host) => {
           return output
         })
         .thru(buffer).filter((bo) => { // Filter out redundant time outs for auth failures.
-          return bo[0] ? !(bo[0].value === -3 && bo[1].value === -1) : true
+          return bo[0] ? !(bo[0].value === -3 && (bo[1].value === -1 || bo[1].value === -2)) : true
         }).map((bo) => bo[1])
     default:
       throw new Error('OS not supported')
@@ -63,27 +63,42 @@ const clogc = (opts) => {
   const legend = {
     latency: [
       {step: 20, symbol: '●'},
-      {step: 100, symbol: '◉'},
+      {step: 200, symbol: '◉'},
       {step: Number.POSITIVE_INFINITY, symbol: '○'}
     ],
     connFail: '·',
     authFail: '/',
-    separator: `—`
+    separator: `—`,
+    unreachable: color.xterm(0).bgXterm(160),
+    unknown: color.xterm(0).bgXterm(93),
+    loss: color.xterm(0).bgXterm(202),
+    gradient: [
+      color.xterm(231),
+      color.xterm(231),
+      color.xterm(231),
+      color.xterm(230),
+      color.xterm(230),
+      color.xterm(229),
+      color.xterm(228),
+      color.xterm(220)
+    ],
+    gradientMaxStep: 500
   }
   return ping(opts.host)
-    .map((ping) => { // Latency normalization.
+    .map((ping) => { // Latency and failure status visualization.
       switch (ping.value) {
         case -3:
-          ping.viz = legend.authFail
+          ping.viz = color.xterm(55)(legend.authFail)
           break
         case -2:
-          ping.viz = legend.connFail
+          ping.viz = color.bgXterm(160)(legend.connFail)
           break
         case -1:
-          ping.viz = legend.connFail
+          ping.viz = color.bgXterm(202)(legend.connFail)
           break
-        default:
-          ping.viz = legend.latency.find((bracket) => ping.value < bracket.step).symbol
+        default: // Find gradient color and symbol to visualize latency.
+          const gradient = Math.round((ping.value / legend.gradientMaxStep) * (legend.gradient.length - 1))
+          ping.viz = legend.gradient[gradient](legend.latency.find((bracket) => ping.value < bracket.step).symbol)
       }
       return ping
     })
