@@ -97,7 +97,9 @@ const clogc = (opts) => {
           ping.viz = color.bgXterm(202)(legend.connFail)
           break
         default: // Find gradient color and symbol to visualize latency.
-          const gradient = Math.round((ping.value / legend.gradientMaxStep) * (legend.gradient.length - 1))
+          const gradient = ping.value >= legend.gradientMaxStep 
+            ? legend.gradient.length - 1
+            : Math.round((ping.value / legend.gradientMaxStep) * (legend.gradient.length - 1))
           ping.viz = legend.gradient[gradient](legend.latency.find((bracket) => ping.value < bracket.step).symbol)
       }
       return ping
